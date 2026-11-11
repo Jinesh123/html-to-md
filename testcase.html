@@ -1,0 +1,675 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML to Markdown Conversion Test</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        .text-red { color: red; }
+        .text-blue { color: blue; }
+        .text-green { color: green; }
+        .text-gray { color: gray; }
+
+        .text-xs { font-size: 12px; }
+        .text-sm { font-size: 14px; }
+        .text-base { font-size: 16px; }
+        .text-lg { font-size: 20px; }
+        .text-xl { font-size: 24px; }
+        .text-2xl { font-size: 32px; }
+        .text-3xl { font-size: 40px; }
+
+        .font-light { font-weight: 300; }
+        .font-normal { font-weight: 400; }
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        .font-extrabold { font-weight: 800; }
+
+        .italic { font-style: italic; }
+        .underline { text-decoration: underline; }
+        .line-through { text-decoration: line-through; }
+
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .text-left { text-align: left; }
+
+        .highlight {
+            background-color: yellow;
+        }
+
+        .small-caps {
+            font-variant: small-caps;
+        }
+
+        .uppercase {
+            text-transform: uppercase;
+        }
+
+        .lowercase {
+            text-transform: lowercase;
+        }
+
+        .capitalize {
+            text-transform: capitalize;
+        }
+
+        .muted {
+            color: #888888;
+            font-size: 13px;
+        }
+
+        .heading-like {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .subheading-like {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .bordered {
+            border: 1px solid #cccccc;
+            padding: 10px;
+        }
+
+        .quote {
+            font-style: italic;
+            border-left: 4px solid #cccccc;
+            padding-left: 12px;
+        }
+
+        .code-style {
+            font-family: monospace;
+            background-color: #eeeeee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===================================== -->
+    <!-- 1. SEMANTIC HEADINGS -->
+    <!-- ===================================== -->
+
+    <section>
+        <h1>Semantic Heading H1</h1>
+        <h2>Semantic Heading H2</h2>
+        <h3>Semantic Heading H3</h3>
+        <h4>Semantic Heading H4</h4>
+        <h5>Semantic Heading H5</h5>
+        <h6>Semantic Heading H6</h6>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 2. FONT SIZE TO HEADING INFERENCE -->
+    <!-- ===================================== -->
+
+    <section>
+        <p class="text-3xl font-bold">Very Large Paragraph</p>
+        <p class="text-2xl font-bold">Large Paragraph</p>
+        <p class="text-xl font-semibold">Medium Large Paragraph</p>
+        <p class="text-lg font-semibold">Medium Paragraph</p>
+        <p class="text-base">Normal Paragraph</p>
+        <p class="text-sm">Small Paragraph</p>
+        <p class="text-xs">Extra Small Paragraph</p>
+
+        <p style="font-size: 36px; font-weight: bold;">
+            Inline CSS Large Heading
+        </p>
+
+        <p style="font-size: 24px; font-weight: 700;">
+            Inline CSS Medium Heading
+        </p>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 3. FONT WEIGHT -->
+    <!-- ===================================== -->
+
+    <section>
+        <p class="font-light">Light Font Weight</p>
+        <p class="font-normal">Normal Font Weight</p>
+        <p class="font-medium">Medium Font Weight</p>
+        <p class="font-semibold">Semibold Font Weight</p>
+        <p class="font-bold">Bold Font Weight</p>
+        <p class="font-extrabold">Extra Bold Font Weight</p>
+
+        <p style="font-weight: 700;">Inline Bold Style</p>
+        <p style="font-weight: 600;">Inline Semibold Style</p>
+        <p style="font-weight: 900;">Inline Extra Bold Style</p>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 4. TEXT COLORS -->
+    <!-- ===================================== -->
+
+    <section>
+        <p class="text-red">Red Text</p>
+        <p class="text-blue">Blue Text</p>
+        <p class="text-green">Green Text</p>
+        <p class="text-gray">Gray Text</p>
+
+        <p style="color: #ff0000;">Hex Red Text</p>
+        <p style="color: rgb(0, 0, 255);">RGB Blue Text</p>
+        <p style="color: rgba(0, 128, 0, 0.8);">RGBA Green Text</p>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 5. TEXT DECORATION -->
+    <!-- ===================================== -->
+
+    <section>
+        <p class="italic">Italic Paragraph</p>
+        <p class="underline">Underlined Paragraph</p>
+        <p class="line-through">Strikethrough Paragraph</p>
+
+        <p>
+            <u>Underlined text using HTML</u>
+        </p>
+
+        <p>
+            <del>Deleted text</del>
+        </p>
+
+        <p>
+            <s>Strikethrough text</s>
+        </p>
+
+        <p>
+            <ins>Inserted text</ins>
+        </p>
+
+        <p>
+            <mark>Highlighted text</mark>
+        </p>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 6. TEXT TRANSFORMATION -->
+    <!-- ===================================== -->
+
+    <section>
+        <p class="uppercase">this should become uppercase</p>
+        <p class="lowercase">THIS SHOULD BECOME LOWERCASE</p>
+        <p class="capitalize">this should capitalize every word</p>
+        <p class="small-caps">Small Caps Text</p>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 7. TEXT ALIGNMENT -->
+    <!-- ===================================== -->
+
+    <section>
+        <p class="text-left">This paragraph is left aligned.</p>
+        <p class="text-center">This paragraph is center aligned.</p>
+        <p class="text-right">This paragraph is right aligned.</p>
+
+        <p style="text-align: justify;">
+            This paragraph uses justified alignment. It contains enough
+            text to demonstrate how the browser distributes words across
+            the available line width.
+        </p>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 8. NESTED FORMATTING -->
+    <!-- ===================================== -->
+
+    <section>
+        <p>
+            This is <strong>bold text</strong> inside a paragraph.
+        </p>
+
+        <p>
+            This is <em>italic text</em> inside a paragraph.
+        </p>
+
+        <p>
+            This is <strong><em>bold and italic text</em></strong>.
+        </p>
+
+        <p>
+            This is <u><strong>bold and underlined text</strong></u>.
+        </p>
+
+        <p>
+            This is <span class="text-red font-bold">red bold text</span>
+            inside a normal paragraph.
+        </p>
+
+        <p>
+            This is <span class="italic text-blue">blue italic text</span>
+            inside a paragraph.
+        </p>
+
+        <p>
+            <strong>
+                Bold parent containing
+                <em>italic child text</em>
+                and normal bold text.
+            </strong>
+        </p>
+
+        <p>
+            Normal text
+            <span style="font-weight: bold; font-style: italic;">
+                combined bold italic text
+            </span>
+            normal text again.
+        </p>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 9. COMBINED CSS STYLES -->
+    <!-- ===================================== -->
+
+    <section>
+        <p class="text-2xl font-bold text-red">
+            Large Red Bold Text
+        </p>
+
+        <p class="text-xl font-semibold italic text-blue">
+            Medium Blue Semibold Italic Text
+        </p>
+
+        <p class="text-lg underline font-bold text-green">
+            Green Bold Underlined Text
+        </p>
+
+        <p class="text-sm italic text-gray line-through">
+            Small Gray Italic Strikethrough Text
+        </p>
+
+        <p style="
+            font-size: 30px;
+            font-weight: bold;
+            font-style: italic;
+            text-decoration: underline;
+            color: purple;
+        ">
+            Multiple Inline CSS Properties
+        </p>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 10. STRONG, EM, B, I TAGS -->
+    <!-- ===================================== -->
+
+    <section>
+        <p><b>Bold using b tag</b></p>
+        <p><strong>Strong using strong tag</strong></p>
+        <p><i>Italic using i tag</i></p>
+        <p><em>Emphasis using em tag</em></p>
+
+        <p>
+            <b>Bold</b>,
+            <i>Italic</i>,
+            <strong>Strong</strong>,
+            <em>Emphasis</em>
+            and normal text.
+        </p>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 11. LINKS -->
+    <!-- ===================================== -->
+
+    <section>
+        <p>
+            Visit <a href="https://example.com">Example Website</a>.
+        </p>
+
+        <p>
+            <a href="https://openai.com" title="OpenAI Website">
+                OpenAI
+            </a>
+        </p>
+
+        <p>
+            <strong>
+                <a href="https://example.com">Bold Link</a>
+            </strong>
+        </p>
+
+        <p>
+            <a href="https://example.com">
+                <span class="text-red font-bold">
+                    Styled Link
+                </span>
+            </a>
+        </p>
+
+        <a href="https://example.com">
+            <img src="image.png" alt="Example Image">
+        </a>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 12. IMAGES -->
+    <!-- ===================================== -->
+
+    <section>
+        <img src="image.png" alt="Simple image">
+
+        <img
+            src="product.png"
+            alt="Product image"
+            title="Product preview"
+            width="300"
+            height="200"
+        >
+
+        <figure>
+            <img src="mountain.jpg" alt="Mountain landscape">
+            <figcaption>Beautiful mountain landscape</figcaption>
+        </figure>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 13. UNORDERED LISTS -->
+    <!-- ===================================== -->
+
+    <section>
+        <ul>
+            <li>Apple</li>
+            <li>Banana</li>
+            <li>Orange</li>
+        </ul>
+
+        <ul>
+            <li>Frontend
+                <ul>
+                    <li>HTML</li>
+                    <li>CSS</li>
+                    <li>JavaScript</li>
+                </ul>
+            </li>
+            <li>Backend</li>
+        </ul>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 14. ORDERED LISTS -->
+    <!-- ===================================== -->
+
+    <section>
+        <ol>
+            <li>First Step</li>
+            <li>Second Step</li>
+            <li>Third Step</li>
+        </ol>
+
+        <ol start="5">
+            <li>Fifth Item</li>
+            <li>Sixth Item</li>
+        </ol>
+
+        <ol type="A">
+            <li>Item A</li>
+            <li>Item B</li>
+        </ol>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 15. BLOCKQUOTES -->
+    <!-- ===================================== -->
+
+    <section>
+        <blockquote>
+            This is a simple blockquote.
+        </blockquote>
+
+        <blockquote>
+            <p>This is a paragraph inside a blockquote.</p>
+            <p><strong>This is bold text inside a quote.</strong></p>
+        </blockquote>
+
+        <blockquote class="quote">
+            Custom styled blockquote using CSS.
+        </blockquote>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 16. CODE BLOCKS -->
+    <!-- ===================================== -->
+
+    <section>
+        <p>
+            Use <code>console.log()</code> to print output.
+        </p>
+
+        <pre><code>
+function hello() {
+    console.log("Hello World");
+}
+        </code></pre>
+
+        <pre><code class="language-javascript">
+const user = {
+    name: "John",
+    age: 25
+};
+
+console.log(user);
+        </code></pre>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 17. TABLES -->
+    <!-- ===================================== -->
+
+    <section>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>City</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>John</td>
+                    <td>25</td>
+                    <td>London</td>
+                </tr>
+                <tr>
+                    <td>Sarah</td>
+                    <td>30</td>
+                    <td>New York</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+            </tr>
+            <tr>
+                <td><strong>Laptop</strong></td>
+                <td>$1000</td>
+            </tr>
+            <tr>
+                <td>Phone</td>
+                <td><em>$500</em></td>
+            </tr>
+        </table>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 18. SUPERSCRIPT AND SUBSCRIPT -->
+    <!-- ===================================== -->
+
+    <section>
+        <p>Water formula: H<sub>2</sub>O</p>
+        <p>Mathematics: X<sup>2</sup> + Y<sup>2</sup></p>
+        <p>Footnote reference<sup>1</sup></p>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 19. LINE BREAKS AND HORIZONTAL RULES -->
+    <!-- ===================================== -->
+
+    <section>
+        <p>
+            First line<br>
+            Second line<br>
+            Third line
+        </p>
+
+        <hr>
+
+        <p>Content after horizontal rule.</p>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 20. SPECIAL CHARACTERS -->
+    <!-- ===================================== -->
+
+    <section>
+        <p>HTML entities: &amp; &lt; &gt; &quot; &copy; &reg;</p>
+        <p>Price: &euro;100</p>
+        <p>Non-breaking space: Hello&nbsp;&nbsp;World</p>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 21. BACKGROUND AND BORDER STYLES -->
+    <!-- ===================================== -->
+
+    <section>
+        <p class="highlight">Yellow highlighted paragraph.</p>
+
+        <p class="bordered">
+            Paragraph with border and padding.
+        </p>
+
+        <p style="background-color: lightblue;">
+            Paragraph with blue background.
+        </p>
+
+        <p style="
+            background-color: #eeeeee;
+            border: 1px solid #cccccc;
+            padding: 10px;
+        ">
+            Combined background, border and padding.
+        </p>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 22. SEMANTIC HTML ELEMENTS -->
+    <!-- ===================================== -->
+
+    <section>
+        <article>
+            <header>
+                <h2>Article Title</h2>
+                <p class="muted">Published on November 11, 2026</p>
+            </header>
+
+            <p>This is the article content.</p>
+
+            <footer>
+                <p>Written by John Doe</p>
+            </footer>
+        </article>
+
+        <address>
+            Contact: john@example.com
+        </address>
+
+        <details>
+            <summary>Click to expand</summary>
+            <p>Hidden content inside details.</p>
+        </details>
+
+        <abbr title="HyperText Markup Language">HTML</abbr>
+
+        <time datetime="2026-11-11">November 11, 2026</time>
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- 23. COMPLEX REAL-WORLD CONTENT -->
+    <!-- ===================================== -->
+
+    <section>
+        <h1>Product Documentation</h1>
+
+        <p class="text-lg font-bold">
+            Introduction
+        </p>
+
+        <p>
+            This documentation explains how to use our
+            <strong>Product API</strong> with simple examples.
+        </p>
+
+        <p class="text-xl font-semibold text-blue">
+            Getting Started
+        </p>
+
+        <p>
+            Follow these steps to get started with the API.
+        </p>
+
+        <ol>
+            <li>Create an account.</li>
+            <li>Generate your <strong>API key</strong>.</li>
+            <li>Make your first API request.</li>
+        </ol>
+
+        <p class="font-bold">Example Request</p>
+
+        <pre><code class="language-javascript">
+fetch("https://api.example.com/users", {
+    method: "GET"
+});
+        </code></pre>
+
+        <p class="text-red font-semibold">
+            Important: Never expose your API key publicly.
+        </p>
+
+        <blockquote>
+            Always keep your credentials secure.
+        </blockquote>
+
+        <p>
+            For more information, visit
+            <a href="https://example.com/docs">our documentation</a>.
+        </p>
+    </section>
+
+</body>
+</html>

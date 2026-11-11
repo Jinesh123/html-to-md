@@ -1,0 +1,58 @@
+# Virtual environments
+.venv/
+venv/
+env/
+.env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Packaging / install
+build/
+dist/
+wheels/
+*.egg
+*.egg-info/
+src/*.egg-info/
+*.whl
+pip-wheel-metadata/
+.eggs/
+
+# Editable install leftovers
+*.egg-link
+__editable__.*.pth
+
+# Test / coverage / typecheck
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+coverage.xml
+*.cover
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Local secrets / env files
+.env
+.env.*
+!.env.example
+
+# Local scratch (Colab zips, ad-hoc outputs)
+*.zip
+*.tar.gz
