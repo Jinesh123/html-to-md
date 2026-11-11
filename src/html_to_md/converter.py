@@ -13,9 +13,9 @@ from html_to_md.options import Options
 from html_to_md.smart import (
     StyleHint,
     apply_text_transform,
-    cluster_positioned_lines,
     infer_style,
     is_page_number,
+    iter_positioned_render_groups,
     join_inline,
     parse_position,
     sort_positioned,
@@ -173,20 +173,25 @@ class Converter:
         return len(positioned) >= 2 and len(positioned) >= len(tags) * 0.8
 
     def _render_positioned_lines(self, parent: Tag) -> list[str]:
-        """Merge same-line absolute elements (e.g. TOC title + page number)."""
+        """Render positioned children with font-size stream boundaries.
+
+        - Different ``font-size`` ⇒ different content stream (not merged).
+        - Overlapping streams (e.g. marginal notes beside body) emit the
+          smaller-size block first so notes stay together, then body.
+        - Same-size fragments on one visual line may still join.
+        """
         tags = [
             c
             for c in parent.children
             if isinstance(c, Tag) and parse_position(c) is not None
         ]
         parts: list[str] = []
-        for line in cluster_positioned_lines(tags):
+        for group in iter_positioned_render_groups(tags):
             bits: list[str] = []
-            for tag in line:
+            for tag in group:
                 rendered = self._render(tag, block=True)
                 if not rendered:
                     continue
-                # Each positioned <p> is one fragment on the visual line.
                 bits.append(" ".join(rendered.split()))
             if not bits:
                 continue

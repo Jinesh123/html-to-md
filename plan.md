@@ -87,7 +87,9 @@ Capabilities are defined by **CSS/HTML signals**, not by document type.
 | **`text-transform`** | upper / lower / capitalize on text nodes | Done |
 | Large bold size on **descendant** `span` (parent `p` plain) | Promote paragraph to heading | Done |
 | Absolute **`top` / `left`** on siblings | Visual reading order | Done |
-| Multiple positioned siblings on same line | Merge into one Markdown line (e.g. label + page #) | Done |
+| Multiple positioned siblings on same line | Merge into one Markdown line when font-sizes match | Done |
+| Same-line **font-size gap** | Treat as content boundary; do **not** merge streams | Done |
+| Overlapping font-size streams | Emit smaller-size block whole (notes), then body | Done |
 | Leading `1. ` in normal content | Do not force list-escape inside emphasis | Done |
 | Colors / alignment / background | No clean GFM; optional keep-as-HTML later | Open |
 | `<style>` stylesheet rules resolved onto classes | Compute effective size/weight from CSS | Open |
@@ -112,11 +114,13 @@ Capabilities are defined by **CSS/HTML signals**, not by document type.
 - [x] Descendant bold+size → heading (presentational title pattern)
 - [x] Font-size units: `px`, **`pt`**, `rem`, `em`, `%`
 - [x] Absolute layout: sort by `top`/`left` with line clustering
-- [x] Same-line merge for positioned siblings (TOC-like and any side-by-side text)
+- [x] Same-line merge for positioned siblings when font-sizes are compatible
+- [x] Font-size gap on same line → separate content streams (e.g. 7.6pt note vs 10.7pt body)
+- [x] Overlapping streams: keep multi-line note blocks together before body clause
 - [x] Safer escaping (don’t turn real `1. Title` labels into `\1.`)
 - [x] Suppress redundant `**` when already emitting a heading
 - [x] Inline join inserts missing spaces between adjacent fragments
-- [x] **65 tests passing**
+- [x] Tests covering layout merge + font-size boundaries
 
 ### Regression samples (not product scope)
 

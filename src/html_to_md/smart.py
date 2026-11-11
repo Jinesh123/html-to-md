@@ -10,7 +10,7 @@ import re
 from dataclasses import dataclass
 from typing import Callable, Sequence
 
-from bs4 import Tag
+from bs4 import NavigableString, Tag
 
 # Tags that often stand in for richer semantics / emphasis.
 STYLABLE_TAGS: frozenset[str] = frozenset({"p", "div", "span"})
@@ -356,6 +356,67 @@ def reading_order_key(el: Tag, index: int) -> tuple:
 
 
 LINE_TOLERANCE_PT = 6.0
+# Relative font-size gap above which same-line elements are different content
+# streams (e.g. 7.6pt marginal note vs 10.7pt body). TOC title 9.2pt + page
+# 10.7pt stays under this and may still merge.
+FONT_SIZE_MERGE_RATIO = 0.20
+
+
+def dominant_font_size_rem(el: Tag) -> float | None:
+    """Dominant font-size (rem) for an element, weighted by text length."""
+    scored: list[tuple[int, float]] = []
+    nodes: list[Tag] = [el]
+    nodes.extend(n for n in el.find_all(True) if isinstance(n, Tag))
+    for node in nodes:
+        rem = parse_font_size(_style(node))
+        if rem is None:
+            continue
+        direct = sum(
+            len(str(child).strip())
+            for child in node.children
+            if isinstance(child, NavigableString)
+        )
+        weight = direct or len(node.get_text(strip=True))
+        if weight <= 0:
+            continue
+        scored.append((weight, rem))
+    if not scored:
+        return None
+    scored.sort(key=lambda item: item[0], reverse=True)
+    return scored[0][1]
+
+
+def font_sizes_compatible(
+    a: float | None,
+    b: float | None,
+    *,
+    ratio: float = FONT_SIZE_MERGE_RATIO,
+) -> bool:
+    """True when two sizes belong to the same content boundary."""
+    if a is None or b is None:
+        return True
+    larger = max(a, b)
+    if larger <= 0:
+        return True
+    return abs(a - b) / larger <= ratio
+
+
+def group_by_compatible_font_size(tags: list[Tag]) -> list[list[Tag]]:
+    """Split a left→right line into runs that share a similar font-size."""
+    if not tags:
+        return []
+    groups: list[list[Tag]] = [[tags[0]]]
+    current_size = dominant_font_size_rem(tags[0])
+    for tag in tags[1:]:
+        size = dominant_font_size_rem(tag)
+        if font_sizes_compatible(current_size, size):
+            groups[-1].append(tag)
+            if current_size is None:
+                current_size = size
+        else:
+            groups.append([tag])
+            current_size = size
+    return groups
 
 
 def cluster_positioned_lines(
@@ -393,9 +454,194 @@ def cluster_positioned_lines(
     return lines
 
 
+# Max vertical gap (pt) within one font-size content block before a new block.
+STREAM_BLOCK_GAP_PT = 40.0
+# How far ahead (pt) to look for a smaller-font stream beside the frontier.
+FRONTIER_WINDOW_PT = 10.0
+
+
+def _assign_font_stream_ids(
+    sizes: list[float | None],
+) -> list[int]:
+    """Map each size to a stream id (compatible sizes share an id)."""
+    reps: list[float | None] = []
+    ids: list[int] = []
+    for size in sizes:
+        found: int | None = None
+        for idx, rep in enumerate(reps):
+            if font_sizes_compatible(rep, size):
+                found = idx
+                if rep is None and size is not None:
+                    reps[idx] = size
+                break
+        if found is None:
+            found = len(reps)
+            reps.append(size)
+        ids.append(found)
+    return ids
+
+
+def order_positioned_by_font_streams(tags: list[Tag]) -> list[Tag]:
+    """Order positioned tags so font-size streams stay contiguous.
+
+    When different font-sizes overlap vertically (e.g. marginal notes beside
+    body text), emit the smaller-size stream block first, then the larger.
+    Same-size fragments still follow top/left order within their block.
+    """
+    items: list[dict] = []
+    for index, tag in enumerate(tags):
+        pos = parse_position(tag)
+        if pos is None:
+            continue
+        items.append(
+            {
+                "top": pos[0],
+                "left": pos[1],
+                "size": dominant_font_size_rem(tag),
+                "tag": tag,
+                "index": index,
+            }
+        )
+    if len(items) < 2:
+        return [item["tag"] for item in items]
+
+    items.sort(key=lambda item: (item["top"], item["left"], item["index"]))
+    stream_ids = _assign_font_stream_ids([item["size"] for item in items])
+    for item, stream_id in zip(items, stream_ids):
+        item["stream"] = stream_id
+
+    # Representative size per stream (for "smaller first" when overlapping).
+    stream_size: dict[int, float] = {}
+    for item in items:
+        size = item["size"]
+        sid = item["stream"]
+        if size is None:
+            continue
+        if sid not in stream_size or size < stream_size[sid]:
+            stream_size[sid] = size
+
+    used = [False] * len(items)
+    ordered: list[Tag] = []
+
+    while not all(used):
+        frontier_top = min(
+            item["top"] for item, is_used in zip(items, used) if not is_used
+        )
+        window = [
+            i
+            for i, item in enumerate(items)
+            if not used[i] and item["top"] <= frontier_top + FRONTIER_WINDOW_PT
+        ]
+        # Prefer the smallest font among streams touching the frontier.
+        pick_stream = min(
+            window,
+            key=lambda i: (
+                stream_size.get(items[i]["stream"], 999.0),
+                items[i]["left"],
+                items[i]["index"],
+            ),
+        )
+        stream = items[pick_stream]["stream"]
+
+        # Emit a contiguous vertical block of this stream.
+        block_indexes = [
+            i
+            for i, item in enumerate(items)
+            if not used[i] and item["stream"] == stream
+        ]
+        block_indexes.sort(key=lambda i: (items[i]["top"], items[i]["left"]))
+
+        # Start from the first unused tag of this stream at/after frontier.
+        start = 0
+        while (
+            start < len(block_indexes)
+            and items[block_indexes[start]]["top"] < frontier_top - FRONTIER_WINDOW_PT
+        ):
+            start += 1
+        if start >= len(block_indexes):
+            start = 0
+
+        last_top = items[block_indexes[start]]["top"]
+        # Tighter gaps for small type (marginal notes); body may span more.
+        rep = stream_size.get(stream)
+        if rep is not None:
+            size_pt = rep * 12.0  # rem → approx pt
+            max_gap = max(12.0, size_pt * 1.55)
+        else:
+            max_gap = STREAM_BLOCK_GAP_PT
+        my_size = stream_size.get(stream, 999.0)
+
+        block_tags: list[Tag] = []
+        for pos in range(start, len(block_indexes)):
+            idx = block_indexes[pos]
+            top = items[idx]["top"]
+            if pos > start:
+                if top - last_top > max_gap:
+                    break
+                # Body must yield when a smaller-font note sits beside/near
+                # the next fragment (notes can be a few pt below the body top).
+                intervening_smaller = any(
+                    (not used[k])
+                    and items[k]["stream"] != stream
+                    and stream_size.get(items[k]["stream"], 999.0) < my_size
+                    and (last_top - FRONTIER_WINDOW_PT)
+                    < items[k]["top"]
+                    <= (top + FRONTIER_WINDOW_PT)
+                    for k in range(len(items))
+                )
+                if intervening_smaller:
+                    break
+            block_tags.append(items[idx]["tag"])
+            used[idx] = True
+            last_top = top
+
+        # Safety: always consume at least the picked item.
+        if not used[pick_stream]:
+            block_tags.append(items[pick_stream]["tag"])
+            used[pick_stream] = True
+
+        # Within a stream block, restore left→right on each visual line.
+        for line in cluster_positioned_lines(block_tags):
+            ordered.extend(line)
+
+    return ordered
+
+
+def iter_positioned_render_groups(tags: list[Tag]) -> list[list[Tag]]:
+    """Stream-aware order, then same-line groups without global re-sort.
+
+    Preserves font-size block order from ``order_positioned_by_font_streams``.
+    Only joins neighbors that share a visual line and compatible font-size.
+    """
+    ordered = order_positioned_by_font_streams(tags)
+    if not ordered:
+        return []
+
+    groups: list[list[Tag]] = []
+    i = 0
+    while i < len(ordered):
+        line = [ordered[i]]
+        pos_i = parse_position(ordered[i])
+        j = i + 1
+        while j < len(ordered):
+            pos_j = parse_position(ordered[j])
+            if (
+                pos_i is not None
+                and pos_j is not None
+                and abs(pos_j[0] - pos_i[0]) <= LINE_TOLERANCE_PT
+            ):
+                line.append(ordered[j])
+                j += 1
+            else:
+                break
+        groups.extend(group_by_compatible_font_size(line))
+        i = j
+    return groups
+
+
 def sort_positioned(tags: list[Tag]) -> list[Tag]:
-    """Sort absolute-positioned tags into visual reading order (line by line)."""
-    return [tag for line in cluster_positioned_lines(tags) for tag in line]
+    """Sort absolute-positioned tags into stream-aware reading order."""
+    return order_positioned_by_font_streams(tags)
 
 
 def is_page_number(text: str) -> bool:
