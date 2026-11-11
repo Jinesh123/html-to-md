@@ -89,14 +89,55 @@ def test_numbered_toc_entry_not_backslash_escaped():
     assert convert(html).strip() == "**1. Interpretation**"
 
 
-def test_page_html_toc_fixture():
+def test_different_font_sizes_on_same_line_not_merged():
+    """Font-size gap = content boundary; do not merge into one MD line."""
+    html = """
+    <div style="width:612pt;height:792pt">
+      <p style="top:625.2pt;left:53.5pt"><i><span style="font-size:7.6pt">When given and </span></i></p>
+      <p style="top:624.3pt;left:139.2pt"><span style="font-size:10.7pt">31.1</span></p>
+      <p style="top:623.5pt;left:169.8pt"><span style="font-size:10.7pt">A notice is deemed given</span></p>
+    </div>
+    """
+    result = convert(html)
+    assert "*When given and*" in result
+    assert "31.1 A notice is deemed given" in result
+    # Marginal note must not be glued onto the body clause line
+    assert "*When given and* 31.1" not in result
+
+
+def test_marginal_note_block_stays_together_before_body():
+    """Multi-line smaller-font notes emit as one block, then body clause."""
+    html = """
+    <div style="width:612pt;height:792pt">
+      <p style="top:625.2pt;left:53.5pt"><i><span style="font-size:7.6pt">When given and </span></i></p>
+      <p style="top:632.1pt;left:53.5pt"><i><span style="font-size:7.6pt">received</span></i></p>
+      <p style="top:642.0pt;left:53.5pt"><i><span style="font-size:7.6pt">Refer to Items 2 and 3 </span></i></p>
+      <p style="top:649.7pt;left:53.5pt"><i><span style="font-size:7.6pt">of Schedule 1.</span></i></p>
+      <p style="top:624.3pt;left:139.2pt"><span style="font-size:10.7pt">31.1</span></p>
+      <p style="top:623.5pt;left:169.8pt"><span style="font-size:10.7pt">A notice (and other documents) is deemed to have been given and </span></p>
+      <p style="top:635.8pt;left:169.8pt"><span style="font-size:10.7pt">received:</span></p>
+    </div>
+    """
+    result = convert(html)
+    note_start = result.index("*When given and*")
+    received_note = result.index("*received*")
+    refer = result.index("*Refer to Items 2 and 3*")
+    schedule = result.index("*of Schedule 1.*")
+    body = result.index("31.1 A notice")
+    assert note_start < received_note < refer < schedule < body
+    assert result.index("received:") > body
+
+
+def test_page_html_clause_fixture():
     html = (ROOT / "page.html").read_text(encoding="utf-8")
     result = convert(html)
-    assert "**Schedule 1** 1" in result
-    assert "**Date** 1" in result
-    assert "**Superintendent** 2" in result
-    assert "**1. Interpretation** 8" in result
-    assert "**17. Suspension** 17" in result
-    # Title and page stay on one line
-    assert "**Client** 1" in result
-    assert "**Client**\n\n1" not in result
+    assert "## 31. Service of Notices" in result
+    assert "31.1 A notice (and other documents) is deemed to have been given and" in result
+    assert "*When given and*" in result
+    assert "*When given and* 31.1" not in result
+    # Notes stay together before the clause body
+    assert result.index("*When given and*") < result.index("*of Schedule 1.*")
+    assert result.index("*of Schedule 1.*") < result.index("31.1 A notice")
+    assert "*Cooperation* 30.9" not in result
+    assert "30.9 The parties must cooperate with the **expert**." in result
+    assert result.index("*Cooperation*") < result.index("30.9 The parties")
